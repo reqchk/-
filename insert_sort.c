@@ -4,8 +4,10 @@
 #include <locale.h>
 
 #define NAME_LEN 20
+
 // исправлено (добавлено)
 #pragma pack(push, 1)
+
 typedef struct {
     int active_count;      // кол-во активных
     int deleted_count;     // кол-во удалённых
@@ -20,8 +22,10 @@ typedef struct {
     char name[NAME_LEN];
     int next_ptr;
 } Record;
+
 // исправлено (добавлено)
 #pragma pack(pop)
+
 // Чтение заголовка
 int read_header(FILE *f, Header *h) {
     rewind(f);
@@ -73,13 +77,13 @@ int find_insert_position(FILE *f, Header *h, const char *name,
     return 0;
 }
 
-// Функция № 6: добавление элемента с сохранением алфавитного порядка
+// Функция № 6 (исправленная)
 int add_sorted_element(const char *filename, const char *name) {
     FILE *f = fopen(filename, "rb+");
     if (!f) {
         f = fopen(filename, "wb+");
         if (!f) return -1;
-        Header empty = {0, 0, -1, -1, -1};
+        Header empty = {0, 0, -1, -1, -1}; // исправлено: значение пустого указателя -1, а не 0
         if (write_header(f, &empty) != 0) {
             fclose(f);
             return -1;
@@ -114,7 +118,7 @@ int add_sorted_element(const char *filename, const char *name) {
             return -1;
         }
         h.first_deleted_ptr = del_rec.next_ptr;
-        if (h.first_deleted_ptr == -1) h.last_deleted_ptr = -1;
+        if (h.first_deleted_ptr == -1) h.last_deleted_ptr = -1; //исправлено на -1
         h.deleted_count--;
     } else {
         fseek(f, 0, SEEK_END);
@@ -161,9 +165,8 @@ int add_sorted_element(const char *filename, const char *name) {
     return 1;
 }
 
-// Тестовая функция
+//добавлена поддержка аргументов командной строки
 int main(int argc, char* argv[]) {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
     if (argc < 3) {
 		printf("Использование: %s <имя_файла> <добавляемый_элемент>\n", argv[0]);  
         return 1;
