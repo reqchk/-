@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
+
+// исправлено (добавлено)
+#pragma pack(push, 1)
 
 typedef struct {
     int activeCount;
@@ -17,6 +19,9 @@ typedef struct {
     char name[20];
     int next;
 } Record;
+
+// исправлено (добавлено)
+#pragma pack(pop)
 
 // Вывод справки
 void printHelp(const char* programName) {
@@ -71,7 +76,7 @@ void searchByPrefix(const char* filename, const char* prefix) {
         fclose(file);
         return;
     }
-    // ИСПРАВЛЕНО: проверяем на -1, а не на 0
+    // исправлено: проверяем на -1, а не на 0
     if (header.firstActive == -1) {
         printf("Список активных элементов пуст\n");
         fclose(file);
@@ -83,7 +88,7 @@ void searchByPrefix(const char* filename, const char* prefix) {
     int currentOffset = header.firstActive;
     int orderNumber = 0;
     int foundCount = 0;
-    // ИСПРАВЛЕНО: проверяем на -1
+    //исправлено: проверяем на -1
     while (currentOffset != -1) {
         Record record;
         if (!readRecord(file, currentOffset, &record)) {
@@ -115,9 +120,6 @@ void searchByPrefix(const char* filename, const char* prefix) {
 
 int main(int argc, char* argv[]) {
     // Проверка параметров командной строки
-    // SetConsoleCP(1251);
-    // SetConsoleOutputCP(1251);
-    setlocale(LC_ALL,"ru_RU.UTF-8");
     if (argc != 3) {
         printHelp(argv[0]);
         return 1;
