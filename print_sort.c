@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string.h>
-#include <locale.h>
+
 // исправлено (добавлено)
 #pragma pack(push, 1)
+
 struct Header {
     int activeCount;      // количество активных элементов
     int deletedCount;     // количество удалённых
@@ -16,8 +17,10 @@ struct Element {
     char name[20];        // наименование (строка, 20 байт)
     int next;             // указатель на следующий элемент
 };
+
 // исправлено (добавлено)
 #pragma pack(pop)
+
 void showHelp(char* programName) {
     printf("Help: \n");
     printf("Sorted list printer\n");
@@ -28,8 +31,6 @@ void showHelp(char* programName) {
 }
 
 int main(int argc, char* argv[]) {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
-    
     if (argc != 2) {
         printf("Not enough arguments! (pro tip: try inputting file name too!)\n");
         showHelp(argv[0]);
@@ -56,18 +57,17 @@ int main(int argc, char* argv[]) {
         fclose(file);
         return 0;
     }
-    //исправлено
-    
+
     while (pos != -1 && count < header.activeCount) {
-    fseek(file, pos, SEEK_SET);  // Читаем по указателю из списка!
-    fread(&element, sizeof(element), 1, file);
-    
-    if (element.deletedFlag == 0) {
-        strcpy(names[count], element.name);
-        count++;
-    }
-    
-    pos = element.next;  // Переходим по next (45 → 70 → 95 → -1)
+        fseek(file, pos, SEEK_SET);  // исправлено: читаем по указателю из списка
+        fread(&element, sizeof(element), 1, file);
+        
+        if (element.deletedFlag == 0) {
+            strcpy(names[count], element.name);
+            count++; //исправлено: увеличиваем только для активных элементов
+        }
+
+        pos = element.next;
     }
     
     // Сортировка
