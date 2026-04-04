@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
 
 #define DATA_SIZE 20
 #define RECORD_SIZE sizeof(Record) 
+
 // исправлено (добавлено)
 #pragma pack(push, 1)
+
 // Структура заголовка файла
 typedef struct {
     int active_count;
@@ -22,8 +23,10 @@ typedef struct {
     char name[20];
     int next;
 } Record;
+
 // исправлено (добавлено)
 #pragma pack(pop)
+
 void print_usage() {
     printf("Использование: pack.exe <файл> compress\n");
     printf("Сжатие файла - удаляет все помеченные записи\n");
@@ -55,8 +58,6 @@ int write_record(FILE* f, int offset, Record* r) {
 }
 
 int main(int argc, char* argv[]) {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
-
     FILE* file = fopen(argv[1], "rb+");
     if (!file) {
         printf("Не может открыть файл %s\n", argv[1]);
@@ -92,8 +93,7 @@ int main(int argc, char* argv[]) {
 
     int pos = h.first_active;
     int i = 0;
-    // pos = -1, а не 0
-    while (pos != -1 && i < h.active_count) {
+    while (pos != 0 && i < h.active_count) {
         if (!read_record(file, pos, &active[i])) {
             printf("Ошибка чтения записи на позиции %d\n", pos);
             free(active);
@@ -111,8 +111,8 @@ int main(int argc, char* argv[]) {
 
     // Создаём временный файл
     char temp_name[256];
-    strcpy_s(temp_name, sizeof(temp_name), argv[1]);
-    strcat_s(temp_name, sizeof(temp_name), ".tmp");
+    // исправлено: используем snprintf вместо strcpy_s/strcat_s для Linux
+    snprintf(temp_name, sizeof(temp_name), "%s.tmp", argv[1]);
 
     FILE* temp = fopen(temp_name, "wb");
     if (!temp) {
@@ -127,8 +127,8 @@ int main(int argc, char* argv[]) {
     new_h.active_count = h.active_count;
     new_h.first_active = sizeof(Header);
     new_h.deleted_count = 0;
-    new_h.first_deleted = -1;  // а не 0
-    new_h.last_deleted = -1;   // а не 0
+    new_h.first_deleted = -1; //исправлено на -1
+    new_h.last_deleted = -1; //исправлено на -1
 
     // Записываем заголовок
     if (!write_header(temp, &new_h)) {
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
     int offset = sizeof(Header);
     for (i = 0; i < h.active_count; i++) {
         active[i].deleted = 0;
-        active[i].next = (i < h.active_count - 1) ? offset + RECORD_SIZE : -1; // исправлено на -1 
+        active[i].next = (i < h.active_count - 1) ? offset + RECORD_SIZE : -1;//исправлено на -1
 
         if (!write_record(temp, offset, &active[i])) {
             printf("Не может записать запись %d\n", i);
