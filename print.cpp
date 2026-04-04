@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <locale.h>
 
 #pragma pack(push, 1)
 
@@ -21,6 +20,7 @@ struct  Record{
 
 #pragma pack(pop)
 
+// Функция создания тестового файла с 5 записями
 void create_test_file(const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) {
@@ -109,7 +109,7 @@ void info(const char *filename, int mode) {
         fseek(f, offset, SEEK_SET);
         
         while (fread(&r, sizeof(Record), 1, f) == 1) {
-            printf("Смещение %d: flag=%d, имя=%s, next=%d\n", offset, r.is_del, r.name, r.next);
+            printf("Смещение %d: is_del=%d, имя=%s, next=%d\n", offset, r.is_del, r.name, r.next);
             offset += sizeof(Record);
             fseek(f, offset, SEEK_SET);
         }
@@ -122,13 +122,12 @@ void info(const char *filename, int mode) {
 }
 
 int main(int argc, char* argv[]) {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
     // create_test_file("f.dat");
     if (argc < 3) {
         printf("Использование: %s <имя_файла> <режим>\n", argv[0]);  
         printf("Режимы:\n");
         printf("1 - Активный список\n");
-        printf("2 - Список удаленных\n");
+        printf("2 - Удаленный список\n");
         printf("3 - Вся информация\n");
         return 1;
     }
@@ -136,7 +135,7 @@ int main(int argc, char* argv[]) {
     const char* filename = argv[1];
     int mode = atoi(argv[2]);  
 
-    printf("\nИнформация о файле %s:\n", filename);
+    printf("Информация о файле %s:\n", filename);
     info(filename, mode);
     
     return 0;
