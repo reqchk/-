@@ -1,26 +1,23 @@
-/*
-pack_reorder.c 
-7. упаковка файла
-
-gcc pack_reorder.c -o pack_reorder.exe
-.\pack_reorder.exe test.dat
-*/
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
+#include <unistd.h> //вместо <io.h>
 
 #define HEADER_SIZE 20
 #define RECORD_SIZE 25
 #define NULL_PTR -1
+
 // исправлено (добавлено)
 #pragma pack(push, 1)
+
 typedef struct {
     char deleted;
     char name[20];
     int next;
 } record_t;
+
 // исправлено (добавлено)
 #pragma pack(pop)
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("Usage: pack.exe <filename>\n");
@@ -125,7 +122,7 @@ int main(int argc, char *argv[]) {
     // обрезаем файл
     long new_size = HEADER_SIZE + (long)(n_active + n_deleted) * RECORD_SIZE;
     fflush(f);
-    _chsize(_fileno(f), new_size);
+    ftruncate(fileno(f), new_size); //изменено для Linux
 
     fclose(f);
     free(active);
